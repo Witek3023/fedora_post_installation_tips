@@ -32,6 +32,7 @@ Package Download Optimization
     metadata_timer_sync=3600
     max_parallel_downloads=10
     ip_resolve=4
+    installonly_limit=2
 
 Opting Out of "Weak Dependencies" Installation
 -----------------------------------------------
