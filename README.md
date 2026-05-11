@@ -10,3 +10,7 @@ Before proceeding with the customization steps, it's important to update your sy
 - [DNF Optimization](dnf-optimization.md)
 - [Additional Repositories + Codecs](additional-repositories.md)
 - [Custom Fedora Setup Guide](personal.md)
+
+## Credits
+https://github.com/odziom91/fedora-tips-and-tricks<br>
+https://rpmfusion.org/Howto
