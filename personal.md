@@ -148,34 +148,125 @@ sudo dnf install kernel-devel akmod-tp_smapi
 sudo dnf --enablerepo=tlp-updates-testing install kernel-devel akmod-tp_smapi
 ```
 
-## Building Thermald on Fedora
+Here is your optimized, English version of the instructions formatted in clean Markdown. I have also ensured the file path for `thinkfan` is correct (Fedora typically uses `.yaml` for newer versions, but I've kept it consistent with your request).
 
-1. **Install Dependencies:**
+---
+
+## Silent Optimization
+
+Configuration of **Thinkfan** for a silent acoustic profile and disabling **Intel Turbo Boost** to prevent sudden temperature spikes.
+
+### Thinkfan
+
+Install the utility and configure the sensors and fan thresholds.
+
+**Install Thinkfan:**
+
 ```bash
-dnf install automake libevdev-devel upower-devel gtk-doc libxml2-devel dbus-glib-devel glib-devel gcc-c++ gcc autoconf-archive
+sudo dnf install thinkfan
 ```
 
-2. **Build and Install:**
+**Edit the Configuration File:**
+*(Newer versions often use `/etc/thinkfan.yaml`)*
+
 ```bash
-git clone https://github.com/intel/thermal_daemon
-cd thermal_daemon
-./autogen.sh prefix=/
-make
-sudo make install
+sudo nano /etc/thinkfan.conf
 ```
 
-3. **Manage Service:**
-```bash
-sudo systemctl enable thermald.service
-sudo systemctl start thermald.service
+**Paste the following configuration:**
+
+```yaml
+# 1. Sensor Configuration (Targeting the Intel Package Temperature)
+sensors:
+  - hwmon: /sys/class/hwmon
+    name: coretemp
+    indices: [1]
+
+# 2. Fan Configuration Hardwere Specific (ThinkPad ACPI Driver)
+fans:
+  - tpacpi: /proc/acpi/ibm/fan
+
+# 3. Custom Quiet Curve
+# [Level, Start_Temp, Stop_Temp]
+levels:
+  - [0, 0, 55]          # TOTAL SILENCE: Fan stays off up to 55°C.
+  - [1, 50, 62]         # Level 1: Starts at 55°C, stops at 50°C.
+  - [2, 55, 68]         # Level 2: Soft hum. Filters out minor spikes.
+  - [3, 63, 75]         # Level 3: Noticeable fan noise for sustained loads.
+  - [6, 70, 85]         # Level 6: Aggressive cooling to drop temps quickly.
+  - [7, 80, 93]         # Level 7: Maximum RPM.
+  - ["level auto", 88, 32767] # Emergency Mode: Hands control back to BIOS.
 ```
+
+**Apply and Verify:**
+Restart the service to apply the new curve:
+
+```bash
+sudo systemctl restart thinkfan
+```
+
+Check the service status:
+
+```bash
+sudo systemctl status thinkfan
+```
+
+### 2. Disable Intel Turbo Boost
+
+To prevent the CPU from hitting high temperatures disable Turbo Boost using `tmpfiles.d`.
+
+**Create the Configuration File:**
+
+```bash
+sudo nano /etc/tmpfiles.d/disable-turbo.conf
+```
+
+**Add the following line:**
+
+```text
+w /sys/devices/system/cpu/intel_pstate/no_turbo - - - - 1
+```
+
+### 3. Disable KSM (Kernel Same-page Merging)
+
+To reclaim ~5% CPU usage and allow the processor to enter deeper sleep states (C-states), disable the KSM background scanner.
+
+**Create the Sysctl Override:**
+
+```bash
+sudo nano /etc/sysctl.d/99-disable-ksm.conf
+```
+
+**Add these lines:**
+
+```text
+vm.ksm_pages_to_scan = 0
+kernel.mm.ksm.run = 0
+```
+
+**Apply changes immediately:**
+
+```bash
+sudo sysctl --system
+echo 2 | sudo tee /sys/kernel/mm/ksm/run
+```
+
+
 
 ## How to Make KDE Faster
+
+### Disable update checking for Discover
+
+```Shell
+sudo killall packagekitd
+sudo systemctl stop packagekit
+sudo systemctl mask packagekit
+```
 
 ### Baloo Configuration
 
 1. **Disable Baloo:**
-```bash
+```shell
 balooctl6 disable
 ```
 
