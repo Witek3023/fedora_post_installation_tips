@@ -41,10 +41,14 @@ Features and instructions to install are available in:<br>
 
 ## Additional Software Installation and Configuration
 
-1. **Install essential tools:**
+1. **Install essential(for me) tools:**
 
 ```shell
-sudo dnf install net-tools python3-pip htop fastfetch git unzip btop zathura feh vim figlet lolcat tar xz p7zip zip gzip cpio unace inxi stow sl cmus mpv foot zsh fzf wl-clipboard xdg-utils curl fontconfig flatpak bzip2 unrar xz-lzma-compat fuzzel sway gnome-keyring libsecret
+dnf copr enable lihaohong/yazi
+```
+
+```shell
+sudo dnf install net-tools python3-pip htop fastfetch git unzip btop zathura feh vim figlet lolcat tar xz p7zip zip gzip cpio unace inxi stow sl cmus mpv foot zsh fzf wl-clipboard xdg-utils curl fontconfig flatpak bzip2 unrar xz-lzma-compat fuzzel sway gnome-keyring libsecret yazi
 ```
 
 2. **Set hardware clock to local time:**
